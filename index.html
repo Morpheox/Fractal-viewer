@@ -148,7 +148,7 @@
     		var resultado="";
     		if(t<60)
     		{
-    			result=t+" segundos";
+    			result=t+" seconds";
     		}else{
     			var seconds = Math.round(t % 60);
     			t = Math.floor(t / 60);
@@ -159,11 +159,11 @@
     			var days = t;    
     			if(days>0)
     			{
-    				result=days+" dias, "+hours+" horas, "+minutes+" minutos y "+seconds+" segundos";
+    				result=days+" days, "+hours+" hours, "+minutes+" minutes y "+seconds+" seconds";
     			}else if(hours>0){
-    				result=hours+" horas, "+minutes+" minutos y "+seconds+" segundos";
+    				result=hours+" hours, "+minutes+" minutos and "+seconds+" seconds";
     			}else{
-    				result=minutes+" minutos y "+seconds+" segundos";
+    				result=minutes+" minutes y "+seconds+" seconds";
     			}
     		}
     		return result;
