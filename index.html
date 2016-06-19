@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+
+	<style type="text/css">
+		.slide {
+			width:300px !important;
+		}
+		#generado{
+			float:left;
+		}
+		#formulario{
+			margin-left: 30px;
+			float:left;
+			border:thin black solid;
+			padding:10px;
+		}
+		#saves{
+			margin-left: 10px;
+			float:left;
+			padding-top:0px;
+			border:thin black solid;
+			width:100px;
+			height:600px;
+			text-align:center;
+
+		}
+		#saves img{
+			height: 90px;
+			width: 90px;
+			-webkit-transition: all 0.2s ease;
+			-moz-transition: all 0.2s ease;
+			-ms-transition: all 0.2s ease;
+			transition: all 0.2s ease;
+		}
+		#saves img:hover {
+			height: 120px;
+			width: 120px;
+			margin-left: -50px;
+		}
+	</style>
+	<script type="text/javascript">
+		var guardados=0;
+
+
+		function getPosicion(event)
+		{
+			var x;
+			var y;
+			var canvas = document.getElementById("marco");
+
+			if (event.x != undefined && event.y != undefined)
+			{
+				x = event.x;
+				y = event.y;
+			}
+        else // Firefox method to get the position
+        {
+        	x = event.clientX + document.body.scrollLeft +
+        	document.documentElement.scrollLeft;
+        	y = event.clientY + document.body.scrollTop +
+        	document.documentElement.scrollTop;
+        }
+
+        x -= canvas.offsetLeft;
+        y -= canvas.offsetTop;
+        zm=1/parseFloat(document.getElementById('zooms').value);
+        xm=document.getElementById("xminimos");
+        ym=document.getElementById("yminimos");
+        xm.value =(xm.value-zm) + ((x/300)*zm);
+        ym.value =(ym.value-zm) + ((y/300)*zm);
+        document.getElementById("zooms").value =parseFloat(document.getElementById("zooms").value)*2.5;
+
+        mandelbrot();
+    }
+    function iteraVal(){
+    	document.getElementById("iteramuestra").value = document.getElementById("itera").value;
+    }
+    function iteraXmin(){
+    	document.getElementById("xminimos").value = document.getElementById("xminimo").value;
+    }
+    function iteraYmin(){
+    	document.getElementById("yminimos").value = document.getElementById("yminimo").value;
+    }
+    function frecSlide(){
+    	document.getElementById("frecs").value = document.getElementById("frec").value;
+    }
+    function ress(){
+    	document.getElementById("resos").value = document.getElementById("reso").value;
+    }
+    function mandelbrot(){
+    	document.getElementById("mensajes").innerHTML="GENERANDO";
+    	var tiempoInicio = new Date();
+    	var frecuencia=parseInt(document.getElementById('frecs').value);
+    	var iteraciones=parseInt(document.getElementById('iteramuestra').value);
+    	var xx=parseFloat(document.getElementById('xminimos').value);
+    	var yy=parseFloat(document.getElementById('yminimos').value);
+    	var xmax=xx+1/parseFloat(document.getElementById('zooms').value);
+    	var ymax=yy+1/parseFloat(document.getElementById('zooms').value);
+    	var xmin=xx-1/parseFloat(document.getElementById('zooms').value);
+    	var ymin=yy-1/parseFloat(document.getElementById('zooms').value);
+    	var ancho=600;
+    	var alto=600;
+    	var canv = document.getElementById('marco');
+    	var ctx=canv.getContext("2d");
+    	var img = ctx.getImageData(0, 0, ancho, alto);
+    	var pixel = img.data;
+    	var resolucion = 11-parseInt(document.getElementById('resos').value);
+    	for (ix=0; ix<alto; ix+=resolucion){
+    		for (iy=0; iy<alto; iy+=resolucion){
+    			var x = xmin + (xmax-xmin)*ix/(ancho-1);
+    			var y = ymin + (ymax-ymin)*iy/(alto-1);
+    			var i=mandel(x,y,iteraciones);
+    			
+    			for (a=0;a<resolucion;a++){
+    				for (b=0;b<resolucion;b++){
+    					var pos=4*(ancho*(iy+a)+ix+b)
+    					if (i==iteraciones)
+    					{
+    						pixel[pos] = 0;
+    						pixel[pos+1] = 0;
+    						pixel[pos+2] = 0	
+    					}
+    					else
+    					{
+    						var c=Math.log(i)/Math.log(iteraciones-1.0);
+    						if (true)
+    						{
+    							pixel[pos]=Math.sin(frecuencia*c + 0) * 127 + 128;
+    							pixel[pos+1]=Math.sin(frecuencia*c + 2) * 127 + 128;;
+    							pixel[pos+2]=Math.sin(frecuencia*c + 4) * 127 + 128;;
+    						}
+    					}
+    					pixel[pos+3]=255;
+    				}}
+    			}
+    			ctx.putImageData(img,0,0);
+
+    		}
+    		var tiempoFinal = new Date();
+    		document.getElementById("mensajes").innerHTML="Generado en: "+calculaTiempo(tiempoFinal-tiempoInicio);
+    	}
+
+    	function calculaTiempo(t)
+    	{
+    		var t = t / 1000;
+    		var resultado="";
+    		if(t<60)
+    		{
+    			result=t+" segundos";
+    		}else{
+    			var seconds = Math.round(t % 60);
+    			t = Math.floor(t / 60);
+    			var minutes = Math.round(t % 60);
+    			t = Math.floor(t / 60);
+    			var hours = Math.round(t % 24);
+    			t = Math.floor(t / 24);
+    			var days = t;    
+    			if(days>0)
+    			{
+    				result=days+" dias, "+hours+" horas, "+minutes+" minutos y "+seconds+" segundos";
+    			}else if(hours>0){
+    				result=hours+" horas, "+minutes+" minutos y "+seconds+" segundos";
+    			}else{
+    				result=minutes+" minutos y "+seconds+" segundos";
+    			}
+    		}
+    		return result;
+
+    	}
+
+
+    	function mandel(cx,cy,maxi){
+    		var i;
+    		var x=parseFloat(document.getElementById('const2').value);
+    		var y=parseFloat(document.getElementById('const3').value);
+    		var xe=parseFloat(document.getElementById('const4').value);
+    		var ye=parseFloat(document.getElementById('const5').value);
+    		var con=parseFloat(document.getElementById('const').value);
+    		for (i=0;i<maxi && Math.pow(x,xe)+Math.pow(y,ye)<=4;i++){
+
+
+    			/*t=x
+    			x=x*x*x - 3*y*y*x + cx;
+    			y=3*t*t*y - y*y*y +cy;*/
+
+    			var t=con*x*y;
+    			x=Math.pow(x,xe) -Math.pow(y,ye)+ cx;
+    			y=t+cy;
+    		}
+    		return i;
+    	}
+    	function download(){
+    		var canvas = document.getElementById("marco");
+    		var img    = canvas.toDataURL("image/png");
+    		document.getElementById("guardaImagen").innerHTML="<a href='"+img+"' onclick='guardado();' download='Fractal "+guardados+"'>DESCARGAR</a>";
+    	}
+    	function guardado(){
+    		document.getElementById('guardaImagen').innerHTML=''
+    	}
+    	function save(){
+    		guardados+=1
+    		c1= document.getElementById('iteramuestra').value;
+    		c2= document.getElementById('itera').value;
+    		c3= document.getElementById('xminimo').value;
+    		c4= document.getElementById('xminimos').value;
+    		c5= document.getElementById('yminimo').value;
+    		c6= document.getElementById('yminimos').value;
+    		c7= document.getElementById('zooms').value;
+    		c8= document.getElementById('reso').value;
+    		c9= document.getElementById('resos').value;
+    		c10= document.getElementById('frec').value;
+    		c11= document.getElementById('const').value;
+    		c12= document.getElementById('const2').value;
+    		c13= document.getElementById('const3').value;
+    		c14= document.getElementById('const4').value;
+    		c15= document.getElementById('const5').value;
+    		c16= document.getElementById('frecs').value;
+    		var canvas = document.getElementById("marco");
+    		var img    = canvas.toDataURL("image/png");
+    		document.getElementById("savesp").innerHTML+=
+    		"<img src='"+img+"' width='90',height='90'onclick='load("+c1+","+c2+","+c3+","+c4+","+c5+","+c6+","+c7+","+c8+","+c9+","+c10+","+c11+","+c12+","+c13+","+c14+","+c15+","+c16+");'/><br>";
+    	}
+    	function load(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16){
+    		document.getElementById('iteramuestra').value =c1;
+    		document.getElementById('itera').value =c2;
+    		document.getElementById('xminimo').value =c3;
+    		document.getElementById('xminimos').value =c4;
+    		document.getElementById('yminimo').value=c5;
+    		document.getElementById('yminimos').value=c6;
+    		document.getElementById('zooms').value=c7;
+    		document.getElementById('reso').value=c8;
+    		document.getElementById('resos').value=c9;
+    		document.getElementById('frec').value=c10;
+    		document.getElementById('const').value=c11;
+    		document.getElementById('const2').value=c12;
+    		document.getElementById('const3').value=c13;
+    		document.getElementById('const4').value=c14;
+    		document.getElementById('const5').value=c15;
+    		document.getElementById('frecs').value=c16;
+    		mandelbrot();
+    	}
+    </script>
+</head>
+<body>
+	<div id="generado">
+		<canvas id="marco" width="600"  height ="600"></canvas>
+         Click to zoom
+	</div>
+
+	<div id="formulario">
+		<form>
+			<br>
+			ITERATIONS:<br>
+			<input type="range" class="slide" min="1" max="5000" value="1000" id="itera" onchange="iteraVal();" />
+			<input type="text" id="iteramuestra" value="1000" /><br>
+			X:<br>
+			<input type="range" class="slide"min="0" max="2" value="0" step="0.01" id="xminimo" onchange="iteraXmin();" />
+			<input type="text" id="xminimos" value="0" /><br>
+			Y:<br>
+			<input type="range" class="slide"min="0" max="2" value="0" step="0.01" id="yminimo" onchange="iteraYmin();" />
+			<input type="text" id="yminimos" value="0"/><br>
+			ZOOM:<br>
+			<input type="text" id="zooms" value="0.5" /><br>
+			RESOLUTION:<br>
+			<input type="range" class="slide" min="1" max="10" value="10" step="1" id="reso" onchange="ress();" />
+			<input type="text" id="resos" value="10"/ disabled><br>
+			CONTRAST:<br>
+			<input type="range" class="slide" min="1" max="20" value="5" step="0.001" id="frec" onchange="frecSlide();" />
+			<input type="text" id="frecs" value="5"/><br>
+			CONSTANT 1:
+			<input type="text" id="const" value="2" /><br>
+			CONSTANT 2:
+			<input type="text" id="const2" value="0" /><br>
+			CONSTANT 3:
+			<input type="text" id="const3" value="0" /><br>
+			CONSTANT 4:
+			<input type="text" id="const4" value="2" /><br>
+			CONSTANT 5:
+			<input type="text" id="const5" value="2" /><br>
+
+			<input type="button" value="Generate" onclick="mandelbrot();"/>
+			<input type="button" value="Save" onclick="save();"/>
+			<input type="button" value="Save as Image" onclick="download();"/>
+			<input type="reset" value="Reset"/><br>
+			<p id="guardaImagen">
+			</p>
+		</form>
+		<p id="mensajes"></p>
+	</div>
+	<div id="saves">
+		<p id="savesp"></p>
+	</div>
+	<script type="text/javascript">
+		var canvas = document.getElementById("marco");
+		canvas.addEventListener("mousedown", getPosicion, false);
+		mandelbrot();
+	</script>
+</body>
+</html>
