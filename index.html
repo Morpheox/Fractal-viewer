@@ -194,7 +194,7 @@
     	function download(){
     		var canvas = document.getElementById("marco");
     		var img    = canvas.toDataURL("image/png");
-    		document.getElementById("guardaImagen").innerHTML="<a href='"+img+"' onclick='guardado();' download='Fractal "+guardados+"'>DESCARGAR</a>";
+    		document.getElementById("guardaImagen").innerHTML="<a href='"+img+"' onclick='guardado();' download='Fractal "+guardados+"'>Download</a>";
     	}
     	function guardado(){
     		document.getElementById('guardaImagen').innerHTML=''
